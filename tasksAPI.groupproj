@@ -1,0 +1,48 @@
+﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <PropertyGroup>
+        <ProjectGuid>{01BCD4F4-7051-4A16-8CBF-6A5E6F5EEEB6}</ProjectGuid>
+    </PropertyGroup>
+    <ItemGroup>
+        <Projects Include="tasks.api\tasks.api.console.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="tasks.win\task.win.dproj">
+            <Dependencies/>
+        </Projects>
+    </ItemGroup>
+    <ProjectExtensions>
+        <Borland.Personality>Default.Personality.12</Borland.Personality>
+        <Borland.ProjectType/>
+        <BorlandProject>
+            <Default.Personality/>
+        </BorlandProject>
+    </ProjectExtensions>
+    <Target Name="tasks_api_console">
+        <MSBuild Projects="tasks.api\tasks.api.console.dproj"/>
+    </Target>
+    <Target Name="tasks_api_console:Clean">
+        <MSBuild Projects="tasks.api\tasks.api.console.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="tasks_api_console:Make">
+        <MSBuild Projects="tasks.api\tasks.api.console.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="task_win">
+        <MSBuild Projects="tasks.win\task.win.dproj"/>
+    </Target>
+    <Target Name="task_win:Clean">
+        <MSBuild Projects="tasks.win\task.win.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="task_win:Make">
+        <MSBuild Projects="tasks.win\task.win.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="Build">
+        <CallTarget Targets="tasks_api_console;task_win"/>
+    </Target>
+    <Target Name="Clean">
+        <CallTarget Targets="tasks_api_console:Clean;task_win:Clean"/>
+    </Target>
+    <Target Name="Make">
+        <CallTarget Targets="tasks_api_console:Make;task_win:Make"/>
+    </Target>
+    <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
+</Project>
