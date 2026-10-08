@@ -1,0 +1,89 @@
+<section class="page-header">
+  <div>
+    <p class="eyebrow">Visão geral</p>
+    <h1>Olá, {{ authenticatedUser?.email.split('@')[0] }} </h1>
+    <p class="subtitle">Acompanhe o que está acontecendo no seu trabalho.</p>
+  </div>
+</section>
+
+<section class="stats-grid">
+  <article class="stat-card">
+    <div class="stat-icon blue">
+      <mat-icon>view_list</mat-icon>
+    </div>
+    <span>Total de tarefas</span>
+    <strong>{{ total }}</strong>
+    <small></small>
+  </article>
+
+  <article class="stat-card">
+    <div class="stat-icon amber">
+      <mat-icon>schedule</mat-icon>
+    </div>
+    <span>Pendentes</span>
+    <strong>{{ pending }}</strong>
+    <small></small>
+  </article>
+
+  <article class="stat-card">
+    <div class="stat-icon violet">
+      <mat-icon>timelapse</mat-icon>
+    </div>
+    <span>Em andamento</span>
+    <strong>{{ inProgress }}</strong>
+    <small></small>
+  </article>
+
+  <article class="stat-card">
+    <div class="stat-icon green">
+      <mat-icon>task_alt</mat-icon>
+    </div>
+    <span>Concluídas</span>
+    <strong>{{ completed }}</strong>
+    <small></small>
+  </article>
+
+  <article class="stat-card">
+    <div class="stat-icon cancelled">
+      <mat-icon>update_disabled</mat-icon>
+    </div>
+    <span>Canceladas</span>
+    <strong>{{ cancelled }}</strong>
+    <small></small>
+  </article>
+</section>
+
+<section class="content-card">
+  <div class="card-heading">
+    <div>
+      <h2>Tarefas recentes</h2>
+      <p>As {{ maxRegister() }} últimas atualizações do seu workspace</p>
+    </div>
+    <a mat-button routerLink="/tasks">
+      Ver todas <mat-icon>arrow_forward</mat-icon>
+    </a>
+  </div>
+  @if (loading()) {
+    <div class="loading-state">
+    <mat-icon>sync</mat-icon>
+    <span>Carregando tarefas...</span>
+    </div>
+  }
+   @else {
+    <div class="task-list">
+      @for (task of recentTasks; track task.id) {
+        <div class="task-row">
+          <div class="task-check" [class.done]="task.status === 2">
+            <mat-icon>{{ task.status === 2 ? 'check' : 'radio_button_unchecked' }}</mat-icon>
+          </div>
+          <div class="task-main">
+            <strong>{{ task.title }}</strong>
+            <span>{{ task.description || 'Sem descrição' }}</span>            
+          </div>
+          <time>Data criação {{ dateToString(task.createdAt) }}</time>
+          <div class="status status-{{ task.status }}">{{ statusLabel(task.status) }}</div>
+        </div>
+      }
+    </div>
+  }
+</section>
