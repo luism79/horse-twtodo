@@ -1,0 +1,104 @@
+# =========================================
+# Delphi / Embarcadero 10.4 Sydney
+# =========================================
+
+# Compilação e artefatos locais
+**/__history/
+**/__recovery/
+**/*.local
+**/*.identcache
+**/*.stat
+**/*.dcu
+**/*.exe
+**/*.dll
+**/*.bpl
+**/*.bca
+**/*.map
+**/*.tds
+**/*.rsm
+**/*.log
+**/*.tmp
+**/*.bak
+**/*.~* 
+**/*.dsk
+**/*.dproj.local
+**/*.groupproj.local
+**/*.tvsconfig
+
+# Binários e outputs
+bin/
+obj/
+Win32/
+Win64/
+Debug/
+Release/
+**/Debug/**
+**/Release/**
+**/Win32/**
+**/Win64/**
+
+# Arquivos do IDE / ambiente do Delphi
+**/.svn/
+**/.git/
+**/.idea/
+**/.vs/
+**/*.suo
+**/*.user
+**/*.userprefs
+**/*.dbmdl
+**/*.pdb
+**/*.ilk
+**/*.aps
+**/*.ncb
+**/*.opt
+**/*.plg
+**/*.pch
+**/*.sbr
+**/*.cache
+**/*.crash
+
+# Banco de dados / config local
+*.ini
+!**/config/*.ini
+!**/sample/*.ini
+
+# Pacotes / libs temporárias
+**/*.~
+**/*.dcp
+**/*.dcpil
+**/*.dres
+**/*.drc
+**/*.rc
+
+# Arquivos de CBuilder / MSBuild
+*.res
+*.rsm
+*.pch
+*.bpi
+*.el
+*.dcp
+*.tds
+*.ncb
+*.sbr
+*.obj
+*.pch
+
+# Arquivos de backup do editor
+**/*.~
+**/*.~* 
+
+# Arquivos do sistema operacional
+Thumbs.db
+.DS_Store
+Desktop.ini
+
+# Logs e relatórios
+*.log
+*.txt
+!README.md
+!LICENSE*
+!Doctos/**/*.txt
+
+# Dependências locais (se houver)
+packages/
+.vscode/

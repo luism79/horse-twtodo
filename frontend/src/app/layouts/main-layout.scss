@@ -1,0 +1,161 @@
+:host {
+	display: block;
+	height: 100%;
+}
+
+.shell {
+	height: 100%;
+	background: var(--page-bg);
+}
+
+.sidenav {
+	width: 245px;
+	padding: 18px 12px;
+	background: var(--sidebar-bg);
+	border-right: 1px solid var(--border);
+}
+
+.brand {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	padding: 8px 12px 30px;
+	color: var(--text-primary);
+	font-size: 22px;
+	font-weight: 700;
+	letter-spacing: .02em;
+}
+
+.brand-mark,
+.avatar {
+	display: grid;
+	place-items: center;
+	background: var(--primary);
+	color: white;
+	font-weight: 700;
+}
+
+.brand-mark {
+	width: 34px;
+	height: 34px;
+	border-radius: 10px;
+}
+
+.nav-label {
+	padding: 16px 12px 7px;
+	color: var(--text-muted);
+	font-size: 11px;
+	font-weight: 700;
+	letter-spacing: .12em;
+	text-transform: uppercase;
+}
+
+mat-nav-list {
+	padding: 0;
+}
+
+mat-nav-list a {
+	margin: 3px 0;
+	color: var(--text-secondary);
+	border-radius: 9px;
+}
+
+mat-nav-list a.active {
+	color: white;
+	background: rgba(99,102,241,.18);
+}
+
+mat-nav-list a.active mat-icon {
+	color: #a5b4fc;
+}
+
+.muted-link {
+	opacity: .56;
+}
+
+.sidenav-footer {
+	position: absolute;
+	right: 18px;
+	bottom: 20px;
+	left: 18px;
+}
+
+.logout-button {
+	width: 100%;
+	color: var(--text-secondary);
+	border-color: var(--border);
+}
+
+.topbar {
+	height: 70px;
+	min-width: 0;
+	padding: 0 26px;
+	color: var(--text-primary);
+	background: var(--surface);
+	border-bottom: 1px solid var(--border);
+}
+
+.topbar-title {
+	min-width: 0;
+	margin-left: 16px;
+	color: var(--text-secondary);
+	font-size: 14px;
+	line-height: 1.3;
+	white-space: normal;
+	overflow-wrap: anywhere;
+}
+
+.spacer {
+	flex: 1;
+}
+
+.user-button {
+	min-width: 0;
+	gap: 9px;
+	color: var(--text-secondary);
+}
+
+.user-menu-panel {
+	position: relative;
+	left: 45px;
+}
+
+.avatar {
+	width: 30px;
+	height: 30px;
+	border-radius: 50%;
+	font-size: 13px;
+}
+
+.user-email {
+	min-width: 0;
+	max-width: 210px;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: normal;
+	overflow-wrap: anywhere;
+	line-height: 1.3;
+}
+
+.page-content {
+	min-height: calc(100vh - 70px);
+	padding: 32px clamp(20px, 4vw, 25px);
+}
+
+@media (max-width: 700px) {
+	.sidenav {
+		width: 230px;
+	}
+
+	.topbar {
+		padding: 0 14px;
+	}
+
+	.user-email {
+		display: none;
+	}
+
+	.page-content {
+		padding: 24px 16px;
+	}
+}

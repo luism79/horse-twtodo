@@ -1,0 +1,41 @@
+@use '@angular/material' as mat;
+
+html {
+  height: 100%;
+  @include mat.theme((
+    color: (primary: mat.$azure-palette, tertiary: mat.$blue-palette),
+    typography: Roboto,
+    density: 0,
+  ));
+}
+
+:root {
+  --page-bg: #0f172a;
+  --sidebar-bg: #111827;
+  --surface: #1e293b;
+  --border: rgba(148, 163, 184, .14);
+  --primary: #6366f1;
+  --text-primary: #f8fafc;
+  --text-secondary: #94a3b8;
+  --text-muted: #64748b;
+}
+
+body {
+  color-scheme: dark;
+  background: var(--page-bg);
+  color: var(--text-primary);
+  font: var(--mat-sys-body-medium);
+  margin: 0;
+  height: 100%;
+}
+
+* { box-sizing: border-box; }
+button, input, textarea { font: inherit; }
+.mat-mdc-dialog-container .mdc-dialog__surface { background: var(--surface); color: var(--text-primary); }
+.mat-mdc-dialog-title, .mat-mdc-dialog-content { color: var(--text-primary); }
+.mat-mdc-dialog-content { color: var(--text-secondary); }
+
+.user-menu-panel {
+  position: relative;
+  left: 45px;
+}
