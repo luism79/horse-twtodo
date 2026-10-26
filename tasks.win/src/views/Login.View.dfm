@@ -32,6 +32,7 @@ inherited frmLogin: TfrmLogin
     Top = 65
     Width = 470
     Height = 176
+    ParentColor = True
     ParentFont = True
     StyleElements = [seClient, seBorder]
     ExplicitTop = 65
