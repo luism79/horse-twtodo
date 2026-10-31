@@ -118,7 +118,7 @@ begin
                         'returning id::varchar;'#13#10;
 
     lQuery.ParamByName('id_usuario').DataType := ftString;
-    lQuery.ParamByName('id_usuario').AsString := AObj.UserId;
+    lQuery.ParamByName('id_usuario').AsString := FUserCurrenct.Id;
     lQuery.ParamByName('titulo').AsString := AObj.Title;
     lQuery.ParamByName('descricao').AsString := AObj.Description;
     lQuery.ParamByName('prioridade').AsInteger := AObj.Priority.ToInteger;
