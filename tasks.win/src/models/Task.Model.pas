@@ -67,8 +67,6 @@ type
   private
     FCard: TCustomPanel;
     FIndexCard: Integer;
-
-    procedure RemoveCard;
   public
     constructor Create; override;
     destructor Destroy; override;
@@ -148,14 +146,8 @@ end;
 
 destructor TTaskModelCard.Destroy;
 begin
-  RemoveCard;
   inherited Destroy;
 end;
 
-procedure TTaskModelCard.RemoveCard;
-begin
-  if Assigned(FCard) then
-    FreeAndNil(FCard);
-end;
 
 end.

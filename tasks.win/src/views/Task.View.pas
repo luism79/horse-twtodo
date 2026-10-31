@@ -68,20 +68,23 @@ type
     procedure InitData;
     procedure LoadStatus;
     procedure LoadPriority;
-    procedure OnButtonClickNotify(const ACardIndex: Integer; ATypeForm: TTypeForm);
+    procedure OnButtonClickNotify(AButton: TcrStaticText; const ACardIndex: Integer; ATypeForm: TTypeForm);
     procedure OnButtonImageNotify(AButton: TcrStaticText; ATypeForm: TTypeForm);
     procedure RemoveTask(ATask: TTaskModelCard);
+    procedure ResetListTasks;
     procedure ResetTaskStatusCounts;
     procedure SetAuthService(const Value: IAuthService);
     procedure SetService(const Value: ITaskService);
-    procedure ShowFormTaskManagement(ATypeForm: TTypeForm; ATask: TTaskModelCard = nil);
+    function ShowFormTaskManagement(ATypeForm: TTypeForm; var ATask: TTaskModelCard): Boolean;
     procedure UpdateTask(const ATaskOld, ATask: TTaskModelCard);
     procedure UpdateTaskCounts; overload;
     procedure UpdateTaskCounts(AStatus: TTaskStatus; const AAction: TActionType); overload;
   protected
     procedure Loaded; override;
+
   public
     { Public declarations }
+    destructor Destroy; override;
 
     property AuthService: IAuthService read GetAuthService;
   end;
@@ -138,6 +141,13 @@ begin
     lLabel.Font.Color := AColor;
 end;
 
+destructor TfrmTaskView.Destroy;
+begin
+  ResetTaskStatusCounts;
+  FreeAndNil(FListTasks);
+  inherited Destroy;
+end;
+
 procedure TfrmTaskView.AddTask(ATask: TTaskModelCard);
 var
   lTask: TTaskModel;
@@ -158,7 +168,6 @@ begin
 
     lTop := 0;
     AddTaskCard(ATask, lTop);
-    UpdateTaskCounts;
   except
     on E: EValidateAuthenticationException do
         Application.MessageBox(PWideChar(E.Message), 'Atenção', MB_ICONWARNING);
@@ -178,8 +187,12 @@ begin
 end;
 
 procedure TfrmTaskView.btnAddClick(Sender: TObject);
+var
+  lTask: TTaskModelCard;
 begin
-  ShowFormTaskManagement(tfAdd);
+  lTask := TTaskModelCard.Create;
+  if not ShowFormTaskManagement(tfAdd, lTask) then
+    FreeAndNil(lTask);
 end;
 
 procedure TfrmTaskView.btnSearchClick(Sender: TObject);
@@ -252,8 +265,6 @@ end;
 
 procedure TfrmTaskView.FormClose(Sender: TObject; var Action: TCloseAction);
 begin
-  ResetTaskStatusCounts;
-  FreeAndNil(FListTasks);
   Action := caFree;
 end;
 
@@ -309,18 +320,36 @@ begin
   AddItemToCombo('Todos', cbStatus);
 end;
 
-procedure TfrmTaskView.OnButtonClickNotify(const ACardIndex: Integer; ATypeForm: TTypeForm);
+procedure TfrmTaskView.OnButtonClickNotify(AButton: TcrStaticText; const ACardIndex: Integer; ATypeForm: TTypeForm);
 var
   lTask: TTaskModelCard;
+  lResult: Integer;
 begin
-  FListTasks.TryGetValue(ACardIndex, lTask);
-
-  if not Assigned(lTask) then
-    Exit;
-
   if ATypeForm = tfRemove then
-    RemoveTask(lTask)
-  else ShowFormTaskManagement(ATypeForm, lTask);
+  begin
+    lResult := Application.MessageBox('Deseja remover esta tarefa?',
+      'Remover', MB_YESNO + MB_ICONQUESTION + MB_DEFBUTTON2);
+
+    if lResult <> mrYes then
+      Exit;
+
+    TThread.ForceQueue(
+      nil,
+      procedure
+      var
+        lTaskRemove: TTaskModelCard;
+      begin
+        if FListTasks.TryGetValue(ACardIndex, lTaskRemove) then
+          RemoveTask(lTaskRemove);
+      end
+    );
+  end
+  else
+  begin
+    lTask := nil;
+    if FListTasks.TryGetValue(ACardIndex, lTask) then
+      ShowFormTaskManagement(ATypeForm, lTask);
+  end;
 end;
 
 procedure TfrmTaskView.OnButtonImageNotify(AButton: TcrStaticText; ATypeForm: TTypeForm);
@@ -331,26 +360,30 @@ var
   lImg: TGraphic;
 begin
   lImg := TAppLibImages.Image(ImageLibIndex[ATypeForm]);
-
-  if Assigned(lImg) then
-    AButton.OptionsImage.Glyph.Assign(lImg);
+  try
+    if Assigned(lImg) then
+      AButton.OptionsImage.Glyph.Assign(lImg);
+  finally
+    FreeAndNil(lImg);
+  end;
 end;
 
 procedure TfrmTaskView.RemoveTask(ATask: TTaskModelCard);
 var
-  lResult: Integer;
+  lCard: TCustomPanel;
 begin
   try
     FService.ValidateAuthentication;
-    lResult := Application.MessageBox('Deseja remover esta tarefa?',
-      'Remover', MB_YESNO + MB_ICONQUESTION + MB_DEFBUTTON2);
 
-    if lResult = mrYes then
-    begin
-      FService.Remove(ATask.Id);
+    FService.Remove(ATask.Id);
+
+    lCard := ATask.Card;
+    try
       UpdateTaskCounts(ATask.Status, atSub);
       FListTasks.Remove(ATask.IndexCard);
       UpdateTaskCounts;
+    finally
+      FreeAndNil(lCard);
     end;
   except
     on E: EValidateAuthenticationException do
@@ -361,9 +394,22 @@ begin
   end;
 end;
 
+procedure TfrmTaskView.ResetListTasks;
+var
+  lPanel: TCustomPanel;
+  lKey: Integer;
+begin
+  for lKey in FListTasks.Keys do
+  begin
+    lPanel := FListTasks.Items[lKey].Card;
+    FreeAndNil(lPanel);
+  end;
+  FListTasks.Clear;
+end;
+
 procedure TfrmTaskView.ResetTaskStatusCounts;
 begin
-  FListTasks.Clear;
+  ResetListTasks;
   FTasksCounts := Default(TTaskStatusCounts);
 end;
 
@@ -386,26 +432,31 @@ begin
   FService := Value;
 end;
 
-procedure TfrmTaskView.ShowFormTaskManagement(ATypeForm: TTypeForm; ATask: TTaskModelCard);
+
+function TfrmTaskView.ShowFormTaskManagement(ATypeForm: TTypeForm; var ATask: TTaskModelCard): Boolean;
 begin
+  Result := False;
   try
     if ATypeForm in [tfAdd, tfEdit] then
       FService.ValidateAuthentication;
 
-    frmTaskManagement := TfrmTaskManagement.Create(Self, ATypeForm, ATask);
+    frmTaskManagement := TfrmTaskManagement.Create(Self, ATypeForm);
     try
-      if frmTaskManagement.ShowModal = mrOk then
+      frmTaskManagement.Task := ATask;
+      Result := frmTaskManagement.ShowModal = mrOk;
+      if Result then
       begin
+        ATask.Assign(frmTaskManagement.Task);
         case ATypeForm of
           tfAdd:
             AddTask(
-              TTaskModelCard(frmTaskManagement.Task)
+              ATask
             );
 
           tfEdit:
             UpdateTask(
               TTaskModelCard(frmTaskManagement.TaskOldValues),
-              TTaskModelCard(frmTaskManagement.Task)
+              ATask
             );
         end;
       end;

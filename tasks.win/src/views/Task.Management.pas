@@ -55,10 +55,11 @@ type
   public
     { Public declarations }
     constructor Create(AOwner: TComponent; ATypeForm: TTypeForm = tfView;
-      ATask: TTaskModel = nil; APosition: TPosition = poMainFormCenter); reintroduce;
+      APosition: TPosition = poMainFormCenter); reintroduce;
+    destructor Destroy; override;
 
     property TaskOldValues: TTaskModel read FTaskOldValues;
-    property Task: TTaskModel read FTask;
+    property Task: TTaskModel read FTask write SetTask;
     property TypeForm: TTypeForm read FTypeForm;
   end;
 
@@ -123,17 +124,23 @@ begin
     Result := FormatDateTime('dd/mm/yyyy hh:nn', ADateTime);
 end;
 
-constructor TfrmTaskManagement.Create(AOwner: TComponent; ATypeForm: TTypeForm;
-  ATask: TTaskModel; APosition: TPosition);
+constructor TfrmTaskManagement.Create(AOwner: TComponent; ATypeForm: TTypeForm; APosition: TPosition);
 begin
   inherited Create(AOwner);
 
+  FTask := TTaskModel.Create;
   Position := APosition;
   SetTypeForm(ATypeForm);
 
   LoadPriority;
   LoadStatus;
-  SetTask(ATask);
+end;
+
+destructor TfrmTaskManagement.Destroy;
+begin
+  FreeAndNil(FTaskOldValues);
+  FreeAndNil(FTask);
+  inherited Destroy;
 end;
 
 function TfrmTaskManagement.GetCaptionDateTime(AStatus: TTaskStatus): string;
@@ -237,15 +244,16 @@ begin
     if Assigned(lCtrl) and (TWinControl(lCtrl).Tag = 0) then
     begin
       lEnabled := FTypeForm in [tfEdit, tfAdd];
+
       if lCtrl is TCustomCombo then
-      begin
-        TComboBox(lCtrl).Enabled := lEnabled;
-        _setColorInControl(lCtrl, lEnabled);
-      end
+        TComboBox(lCtrl).Enabled := lEnabled
       else
       begin
-        TCustomEdit(lCtrl).ReadOnly := not lEnabled;
-        _setColorInControl(lCtrl, not lEnabled);
+        if lCtrl is TCustomEdit then
+        begin
+          TCustomEdit(lCtrl).ReadOnly := not lEnabled;
+          _setColorInControl(lCtrl, not lEnabled);
+        end;
       end;
     end;
   end;
@@ -255,17 +263,15 @@ end;
 
 procedure TfrmTaskManagement.SetTask(Value: TTaskModel);
 begin
-  if FTypeForm = tfAdd then
-    FTask := TTaskModelCard.Create
-  else
-  begin
-    if not Assigned(Value) then
-      raise Exception.Create('Não foi possível carregar a tarefa');
+  if not Assigned(Value) then
+    raise Exception.Create('Não foi possível carregar a tarefa');
 
+  if FTypeForm = tfEdit then
+  begin
     FTaskOldValues := TTaskModelCard.Create;
     FTaskOldValues.Assign(Value);
-    FTask := Value;
   end;
+  FTask.Assign(Value);
   LoadDataTask;
 end;
 

@@ -10,7 +10,7 @@ const
 
 type
   TButtonImageNotify = procedure(AButton: TcrStaticText; ATypeForm: TTypeForm) of object;
-  TButtonCardClickNotify = procedure(const ACardIndex: Integer; ATypeForm: TTypeForm) of object;
+  TButtonCardClickNotify = procedure(AButton: TcrStaticText; const ACardIndex: Integer; ATypeForm: TTypeForm) of object;
 
   TTaskCard = class
   private
@@ -32,6 +32,12 @@ implementation
 uses
   System.SysUtils, Vcl.StdCtrls, Vcl.Graphics, System.Types, App.Consts, crSystemTypes,
   crCustomBorderStyle, crCustomPropertyPersistent;
+
+
+const
+  CS_CARD_PANEL_NAME = 'pnlCard_%d';
+  CS_CARD_BODY_NAME = 'pnlCardBody_%d';
+  CS_CARD_SHAPE_NAME = 'shpCard_%d';
 
 var
   FOwnerCtrl: TComponent;
@@ -230,7 +236,7 @@ begin
   lPanel.Align := alClient;
   lPanel.ParentBackground := True;
   lPanel.StyleElements := [seClient];
-  lPanel.Name := Format('pnlCardBody_%d', [FTask.IndexCard]);
+  lPanel.Name := Format(CS_CARD_BODY_NAME, [FTask.IndexCard]);
 
   lLabel := AddLabel(lPanel);
   lLabel.Align := alClient;
@@ -262,6 +268,7 @@ begin
   Result.Shape := stRoundRect;
   Result.Brush.Color := TaskPriorityColor[APriority];
   Result.Pen.Color := TaskPriorityBorderColor[APriority];
+  Result.Name := Format(CS_CARD_SHAPE_NAME, [FTask.IndexCard]);
 end;
 
 function NewCard(ATop: Integer): TPanel;
@@ -274,7 +281,7 @@ begin
   Result.Color := clWhite;
   Result.Align := alTop;
   Result.Tag := FTask.IndexCard;
-  Result.Name := Format('pnlCard_%d', [FTask.IndexCard]);
+  Result.Name := Format(CS_CARD_PANEL_NAME, [FTask.IndexCard]);
 
   FTask.Card := Result;
 
@@ -314,35 +321,55 @@ begin
 end;
 
 class function TTaskCard.Update(ATask: TTaskModelCard): Boolean;
+
+  procedure _removeCtrlCardPanel(ACardPanel: TCustomPanel; const ACtrlName: string);
+  var
+    lCtrl: TControl;
+    I: Integer;
+  begin
+    lCtrl := nil;
+    for I := 0 to Pred(ACardPanel.ControlCount) do
+    begin
+      lCtrl := ACardPanel.Controls[I];
+
+      if SameStr(lCtrl.Name, ACtrlName) then
+      begin
+        FreeAndNil(lCtrl);
+        Exit;
+      end;
+    end;
+  end;
+
 var
-  lCtrl: TControl;
   lPanel: TPanel;
-  lCtrlName: string;
 begin
   SetTask(ATask);
 
   lPanel := TPanel(ATask.Card);
-  lCtrlName := Format('pnlCardBody_%d', [FTask.IndexCard]);
 
-  lCtrl := lPanel.FindChildControl(lCtrlName);
-  if Assigned(lCtrl) then
-  begin
-    FreeAndNil(lCtrl);
-    AddPanelBody(lPanel);
-  end;
+  _removeCtrlCardPanel(lPanel, Format(CS_CARD_SHAPE_NAME, [FTask.IndexCard]));
+  _removeCtrlCardPanel(lPanel, Format(CS_CARD_BODY_NAME, [FTask.IndexCard]));
 
+  AddShape(lPanel, ATask.Priority);
+  AddPanelBody(lPanel);
   Result := True;
 end;
 
 class procedure TTaskCard.ClickButtonNotify(ASender: TObject);
 var
   lButton: TcrStaticText;
+  lTypeForm: TTypeForm;
 begin
-  if Assigned(FButtonClickNotify) then
-  begin
-    lButton := TcrStaticText(ASender);
-    FButtonClickNotify(lButton.Owner.Owner.Tag, TTypeForm(lButton.Tag));
-  end;
+  if not Assigned(FButtonClickNotify) then
+    Exit;
+
+  if not (ASender is TcrStaticText) then
+    Exit;
+
+  lButton := TcrStaticText(ASender);
+
+  lTypeForm := TTypeForm(lButton.Tag);
+  FButtonClickNotify(lButton, lButton.Parent.Parent.Tag, lTypeForm);
 end;
 
 end.

@@ -48,7 +48,8 @@ begin
 
   ResetStatemant;
   try
-    lBody := RequestBody(TAppUtils.ConvertRecordToJSON<TTaskAddInputDTO>(ATask));
+    lJson := TAppUtils.ConvertRecordToJSON<TTaskAddInputDTO>(ATask);
+    lBody := RequestBody(lJson);
 
     lResponse := Http.Post(
       PathUrl,
@@ -58,6 +59,7 @@ begin
     );
   finally
     FreeAndNil(lBody);
+    FreeAndNil(lJson);
   end;
 
   if not (lResponse.StatusCode in [200, 201]) then
@@ -168,8 +170,9 @@ begin
   ValidateAuthentication;
 
   ResetStatemant;
+  lJson := TAppUtils.ConvertRecordToJSON<TTaskUptInputDTO>(ATask);
   try
-    lBody := RequestBody(TAppUtils.ConvertRecordToJSON<TTaskUptInputDTO>(ATask));
+    lBody := RequestBody(lJson);
 
     lResponse := Http.Put(
       PathUrl(ATask.Id),
@@ -178,6 +181,7 @@ begin
       Headers
     );
   finally
+    FreeAndNil(lJson);
     FreeAndNil(lBody);
   end;
 
