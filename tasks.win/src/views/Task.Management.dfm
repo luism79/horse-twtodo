@@ -260,7 +260,6 @@ inherited frmTaskManagement: TfrmTaskManagement
       Top = 10
       Width = 100
       Height = 44
-      OptionsImage.Layout = blGlyphLeft
       Properties.Alignment.Horz = taCenter
       Properties.Alignment.Vert = taVCenter
       Properties.FocusRect = True
@@ -283,7 +282,7 @@ inherited frmTaskManagement: TfrmTaskManagement
       Caption = 'Confirmar'
       Default = True
       Font.Charset = DEFAULT_CHARSET
-      Font.Color = 3877150
+      Font.Color = clWhite
       Font.Height = -12
       Font.Name = 'Segoe UI'
       Font.Style = [fsBold]
@@ -295,7 +294,6 @@ inherited frmTaskManagement: TfrmTaskManagement
       Top = 10
       Width = 100
       Height = 44
-      OptionsImage.Layout = blGlyphLeft
       Properties.Alignment.Horz = taCenter
       Properties.Alignment.Vert = taVCenter
       Properties.FocusRect = True

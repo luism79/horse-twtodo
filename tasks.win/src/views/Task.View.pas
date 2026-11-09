@@ -192,7 +192,8 @@ var
 begin
   lTask := TTaskModelCard.Create;
   if not ShowFormTaskManagement(tfAdd, lTask) then
-    FreeAndNil(lTask);
+    FreeAndNil(lTask)
+  else lTask.Card.TabOrder := 0;
 end;
 
 procedure TfrmTaskView.btnSearchClick(Sender: TObject);
